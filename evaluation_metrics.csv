@@ -1,0 +1,11 @@
+Metric,Value
+Mean FPS,39.78
+Max FPS,47.60
+Min FPS,5.52
+Player Inference (ms),15.13
+Keypoint Inference (ms),11.37
+Mean Players/Frame,18.5
+Mean Keypoints/Frame,10.3
+Mean Confidence,0.8312
+Ball Detection Rate (%),29.5
+Homography Success Rate (%),100.0

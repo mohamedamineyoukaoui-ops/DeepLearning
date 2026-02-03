@@ -1,0 +1,16 @@
+# Football Analytics Web App API
+# Requirements file
+
+# FastAPI and server
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+websockets>=12.0
+
+# Already installed (from notebook)
+# torch
+# ultralytics
+# opencv-python
+# numpy
+# scikit-image
+# pyyaml

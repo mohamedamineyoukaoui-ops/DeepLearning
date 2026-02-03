@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Analytics - AI Powered</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #252530;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #7c3aed;
+            --accent-gradient: linear-gradient(135deg, #00d4ff, #7c3aed);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #2a2a35;
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+
+        html, body { height: 100%; overflow: hidden; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0.6rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: var(--accent-gradient);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 16px;
+        }
+        .logo h1 {
+            font-size: 1.1rem; font-weight: 600;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-badge {
+            display: flex; align-items: center; gap: 6px;
+            padding: 5px 12px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            font-size: 0.75rem;
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+        .status-dot.ready { background: var(--success); }
+
+        .main-container { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 0.75rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-section { margin-bottom: 1rem; }
+        .sidebar-title {
+            font-size: 0.7rem; font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .upload-zone:hover { border-color: var(--accent-primary); background: rgba(0, 212, 255, 0.05); }
+        .upload-zone input { display: none; }
+        .upload-icon { font-size: 1.5rem; margin-bottom: 0.3rem; }
+        .upload-text { font-size: 0.75rem; color: var(--text-secondary); }
+        .upload-text strong { color: var(--accent-primary); }
+
+        .team-input { display: flex; align-items: center; gap: 6px; margin-bottom: 0.4rem; }
+        .team-input span { font-size: 0.8rem; color: var(--text-muted); }
+        .team-input input[type="text"] {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            color: var(--text-primary);
+            font-size: 0.8rem;
+        }
+        .team-input input:focus { outline: none; border-color: var(--accent-primary); }
+
+        .btn {
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+        .btn-primary { background: var(--accent-gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-secondary { background: var(--bg-hover); color: var(--text-primary); border: 1px solid var(--border); }
+        .btn-danger { background: var(--danger); color: white; }
+
+        .content-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .tabs {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 1rem;
+            flex-shrink: 0;
+        }
+        .tab {
+            padding: 0.6rem 1rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+
+        .tab-content { flex: 1; overflow-y: auto; padding: 0.75rem; }
+        .tab-panel { display: none; height: 100%; }
+        .tab-panel.active { display: block; }
+
+        .team-colors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; height: 100%; }
+
+        .color-picker-panel, .frame-preview-panel {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 0.75rem;
+        }
+
+        .frame-preview-panel { display: flex; flex-direction: column; }
+
+        .frame-slider-container { margin-bottom: 0.75rem; }
+        .frame-slider-container label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.3rem; }
+        .frame-slider-row { display: flex; align-items: center; gap: 8px; }
+        .frame-slider-row input[type="range"] {
+            flex: 1; height: 4px;
+            -webkit-appearance: none;
+            background: var(--border);
+            border-radius: 2px;
+        }
+        .frame-slider-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px; height: 14px;
+            background: var(--danger);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .frame-value { font-size: 0.8rem; color: var(--danger); font-weight: 600; min-width: 30px; }
+
+        .detected-players-title { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
+
+        .players-composite {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem;
+            text-align: center;
+            cursor: crosshair;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .players-composite img { max-width: 100%; border-radius: 4px; }
+
+        .color-selection-section { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+        .color-selection-title { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+
+        .color-radio-group { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+        .color-radio { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+        .color-radio input { accent-color: var(--danger); }
+        .color-radio label { font-size: 0.75rem; color: var(--text-secondary); cursor: pointer; }
+
+        .color-pickers-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+        .color-picker-item { text-align: center; }
+        .color-picker-item input[type="color"] {
+            width: 40px; height: 32px;
+            border: none; border-radius: var(--radius-sm);
+            cursor: pointer; padding: 0;
+        }
+        .color-picker-item input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        .color-picker-item input[type="color"]::-webkit-color-swatch { border: none; border-radius: var(--radius-sm); }
+        .color-picker-label { font-size: 0.6rem; color: var(--text-muted); margin-top: 2px; }
+
+        .frame-preview-image {
+            flex: 1;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            min-height: 200px;
+        }
+        .frame-preview-image img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        .detection-layout { display: grid; grid-template-columns: 1fr 280px; gap: 0.75rem; height: 100%; }
+
+        .video-panel {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .video-header {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .video-title { font-size: 0.85rem; font-weight: 500; }
+        .fps-badge { color: var(--success); font-weight: 600; font-size: 0.85rem; }
+
+        .video-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            position: relative;
+        }
+        .video-container canvas { max-width: 100%; max-height: 100%; }
+        .video-placeholder { text-align: center; color: var(--text-muted); }
+        .video-placeholder .icon { font-size: 2.5rem; margin-bottom: 0.4rem; opacity: 0.5; }
+
+        .right-panel { display: flex; flex-direction: column; gap: 0.5rem; overflow-y: auto; }
+        .panel-card { background: var(--bg-card); border-radius: var(--radius); overflow: hidden; }
+        .panel-header {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .panel-title { font-size: 0.75rem; font-weight: 500; color: var(--text-secondary); }
+        .panel-body { padding: 0.5rem; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+        .stat-item {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-value.fps { -webkit-text-fill-color: var(--success); }
+        .stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+
+        .hyperparam-row { margin-bottom: 0.6rem; }
+        .hyperparam-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.2rem;
+        }
+        .hyperparam-value { color: var(--accent-primary); font-weight: 600; }
+        .hyperparam-slider {
+            width: 100%; height: 4px;
+            -webkit-appearance: none;
+            background: linear-gradient(90deg, var(--danger) 0%, var(--warning) 50%, var(--success) 100%);
+            border-radius: 2px;
+        }
+        .hyperparam-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px; height: 12px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 0.3rem 0; }
+        .toggle-label { font-size: 0.75rem; color: var(--text-secondary); }
+        .toggle-switch { position: relative; width: 36px; height: 20px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background: var(--bg-hover); border-radius: 20px; transition: 0.2s;
+        }
+        .toggle-slider:before {
+            position: absolute; content: "";
+            height: 14px; width: 14px; left: 3px; bottom: 3px;
+            background: white; border-radius: 50%; transition: 0.2s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: var(--success); }
+        .toggle-switch input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+        .tactical-container {
+            background: #1a4d1a;
+            border-radius: var(--radius-sm);
+            padding: 0.4rem;
+            display: flex;
+            justify-content: center;
+        }
+        #tacticalCanvas { max-width: 100%; height: auto; max-height: 180px; }
+
+        .hidden { display: none !important; }
+
+        .spinner {
+            width: 28px; height: 28px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-overlay {
+            position: absolute; inset: 0;
+            background: rgba(10, 10, 15, 0.9);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 0.5rem; z-index: 10;
+        }
+
+        .video-info { margin-top: 0.5rem; padding: 0.5rem; background: var(--bg-card); border-radius: var(--radius-sm); }
+        .video-info p { font-size: 0.75rem; color: var(--text-secondary); }
+        .video-info .success { color: var(--success); }
+
+        .progress-bar { height: 3px; background: var(--bg-secondary); border-radius: 2px; overflow: hidden; margin-top: 0.4rem; }
+        .progress-fill { height: 100%; background: var(--accent-gradient); width: 0%; transition: width 0.3s; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">⚽</div>
+            <h1>Football Analytics</h1>
+        </div>
+        <div class="status-badge">
+            <div class="status-dot" id="statusDot"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">📁 Video Upload</div>
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="videoInput" accept="video/*">
+                    <div class="upload-icon">📹</div>
+                    <p class="upload-text"><strong>Click to upload</strong><br>or drag & drop</p>
+                </div>
+                <div id="videoInfo" class="video-info hidden">
+                    <p class="success">✓ <span id="videoName"></span></p>
+                    <p id="videoDetails"></p>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">👥 Team Names</div>
+                <div class="team-input">
+                    <span>1.</span>
+                    <input type="text" id="team1Name" value="France" placeholder="Team 1">
+                </div>
+                <div class="team-input">
+                    <span>2.</span>
+                    <input type="text" id="team2Name" value="Switzerland" placeholder="Team 2">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">⚙️ Controls</div>
+                <button class="btn btn-primary" id="startBtn" onclick="startProcessing()" disabled>▶️ Start Detection</button>
+                <button class="btn btn-danger hidden" id="stopBtn" onclick="stopProcessing()" style="margin-top: 0.4rem;">⏹️ Stop</button>
+                <div id="progressContainer" class="hidden">
+                    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="content-area">
+            <div class="tabs">
+                <div class="tab active" data-tab="howto">How to use?</div>
+                <div class="tab" data-tab="colors">Team Colors</div>
+                <div class="tab" data-tab="hyperparams">Model Hyperparameters & Detection</div>
+            </div>
+
+            <div class="tab-content">
+                <div class="tab-panel active" id="tab-howto">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div style="background: var(--bg-card); border-radius: var(--radius); padding: 1rem;">
+                            <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">🎯 Main Features</h3>
+                            <ul style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.7; padding-left: 1rem;">
+                                <li>Football players, referee, and ball detection</li>
+                                <li>Players team prediction based on jersey color</li>
+                                <li>Estimation of players positions on tactical map</li>
+                                <li>Ball tracking visualization</li>
+                                <li>Real-time GPU-accelerated processing</li>
+                            </ul>
+                        </div>
+                        <div style="background: var(--bg-card); border-radius: var(--radius); padding: 1rem;">
+                            <h3 style="font-size: 0.9rem; margin-bottom: 0.75rem;">📖 Instructions</h3>
+                            <ol style="color: var(--text-secondary); font-size: 0.8rem; line-height: 1.7; padding-left: 1rem;">
+                                <li>Upload a tactical camera video</li>
+                                <li>Enter team names in the sidebar</li>
+                                <li>Go to "Team Colors" tab to pick colors</li>
+                                <li>Select a frame with visible players</li>
+                                <li>Click on players to pick their jersey colors</li>
+                                <li>Adjust hyperparameters if needed</li>
+                                <li>Click "Start Detection" to begin!</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="tab-colors">
+                    <div class="team-colors-grid">
+                        <div class="color-picker-panel">
+                            <div class="frame-slider-container">
+                                <label>Select frame</label>
+                                <div class="frame-slider-row">
+                                    <span class="frame-value" id="frameValue">1</span>
+                                    <input type="range" id="frameSlider" min="1" max="100" value="1">
+                                    <span id="frameMax" style="color: var(--text-muted); font-size: 0.8rem;">100</span>
+                                </div>
+                            </div>
+
+                            <div class="detected-players-title">Detected players</div>
+                            <div class="players-composite" id="playersComposite">
+                                <p style="color: var(--text-muted); font-size: 0.8rem;">Upload a video first</p>
+                            </div>
+
+                            <div class="color-selection-section">
+                                <div class="color-selection-title">Select which team color to pick from the image above:</div>
+                                <div class="color-radio-group">
+                                    <div class="color-radio">
+                                        <input type="radio" id="colorT1P" name="colorPick" value="t1p" checked>
+                                        <label for="colorT1P"><span id="t1pLabel">France</span> P color</label>
+                                    </div>
+                                    <div class="color-radio">
+                                        <input type="radio" id="colorT1GK" name="colorPick" value="t1gk">
+                                        <label for="colorT1GK"><span id="t1gkLabel">France</span> GK color</label>
+                                    </div>
+                                    <div class="color-radio">
+                                        <input type="radio" id="colorT2P" name="colorPick" value="t2p">
+                                        <label for="colorT2P"><span id="t2pLabel">Switzerland</span> P color</label>
+                                    </div>
+                                    <div class="color-radio">
+                                        <input type="radio" id="colorT2GK" name="colorPick" value="t2gk">
+                                        <label for="colorT2GK"><span id="t2gkLabel">Switzerland</span> GK color</label>
+                                    </div>
+                                </div>
+
+                                <div style="color: var(--text-muted); font-size: 0.7rem; margin-bottom: 0.4rem;">
+                                    Boxes below can be used to manually adjust selected colors.
+                                </div>
+                                <div class="color-pickers-grid">
+                                    <div class="color-picker-item">
+                                        <input type="color" id="team1PColor" value="#1E2530">
+                                        <div class="color-picker-label" id="cp1Label">France P</div>
+                                    </div>
+                                    <div class="color-picker-item">
+                                        <input type="color" id="team1GKColor" value="#F5FD15">
+                                        <div class="color-picker-label" id="cp2Label">France GK</div>
+                                    </div>
+                                    <div class="color-picker-item">
+                                        <input type="color" id="team2PColor" value="#FBFCFA">
+                                        <div class="color-picker-label" id="cp3Label">Swiss P</div>
+                                    </div>
+                                    <div class="color-picker-item">
+                                        <input type="color" id="team2GKColor" value="#B1FCC4">
+                                        <div class="color-picker-label" id="cp4Label">Swiss GK</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="frame-preview-panel">
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem;">Frame Preview</div>
+                            <div class="frame-preview-image" id="framePreview">
+                                <p style="color: var(--text-muted); font-size: 0.8rem;">Select a frame to preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-panel" id="tab-hyperparams">
+                    <div class="detection-layout">
+                        <div class="video-panel">
+                            <div class="video-header">
+                                <span class="video-title">🎥 Live Detection</span>
+                                <span class="fps-badge" id="fpsDisplay">-- FPS</span>
+                            </div>
+                            <div class="video-container" id="videoContainer">
+                                <div class="video-placeholder" id="videoPlaceholder">
+                                    <div class="icon">🎬</div>
+                                    <p>Upload a video and start detection</p>
+                                </div>
+                                <canvas id="videoCanvas" class="hidden"></canvas>
+                                <div class="loading-overlay hidden" id="loadingOverlay">
+                                    <div class="spinner"></div>
+                                    <p style="font-size: 0.8rem;">Processing...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="right-panel">
+                            <div class="panel-card">
+                                <div class="panel-header"><span class="panel-title">📊 Stats</span></div>
+                                <div class="panel-body">
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <div class="stat-value fps" id="statFps">--</div>
+                                            <div class="stat-label">FPS</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value" id="statPlayers">0</div>
+                                            <div class="stat-label">Players</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value" id="statTime">0</div>
+                                            <div class="stat-label">MS</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-value" id="statFrame">0</div>
+                                            <div class="stat-label">Frame</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="panel-header"><span class="panel-title">⚙️ Hyperparameters</span></div>
+                                <div class="panel-body">
+                                    <div class="hyperparam-row">
+                                        <div class="hyperparam-label">
+                                            <span>Player Detection Conf.</span>
+                                            <span class="hyperparam-value" id="playerConfVal">0.60</span>
+                                        </div>
+                                        <input type="range" class="hyperparam-slider" id="playerConf" min="0" max="1" step="0.05" value="0.6">
+                                    </div>
+                                    <div class="hyperparam-row">
+                                        <div class="hyperparam-label">
+                                            <span>Keypoint Detection Conf.</span>
+                                            <span class="hyperparam-value" id="keypointConfVal">0.70</span>
+                                        </div>
+                                        <input type="range" class="hyperparam-slider" id="keypointConf" min="0" max="1" step="0.05" value="0.7">
+                                    </div>
+                                    <div class="hyperparam-row">
+                                        <div class="hyperparam-label">
+                                            <span>RMSE Tolerance (px)</span>
+                                            <span class="hyperparam-value" id="keypointTolVal">7</span>
+                                        </div>
+                                        <input type="range" class="hyperparam-slider" id="keypointTol" min="-1" max="100" step="1" value="7">
+                                    </div>
+                                    <button class="btn btn-secondary" onclick="updateHyperparams()" style="margin-top: 0.4rem; font-size: 0.75rem;">Apply</button>
+                                </div>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="panel-header"><span class="panel-title">🗺️ Tactical Map</span></div>
+                                <div class="panel-body" style="padding: 0.4rem;">
+                                    <div class="tactical-container">
+                                        <canvas id="tacticalCanvas"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-card">
+                                <div class="panel-header"><span class="panel-title">👁️ Annotations</span></div>
+                                <div class="panel-body">
+                                    <div class="toggle-row">
+                                        <span class="toggle-label">Show Players</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="showPlayers" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <span class="toggle-label">Show Ball</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="showBallTracks" checked>
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="toggle-row">
+                                        <span class="toggle-label">Show Keypoints</span>
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" id="showKeypoints">
+                                            <span class="toggle-slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const WS_URL = 'ws://localhost:8000';
+
+        let ws = null;
+        let isProcessing = false;
+        let currentFilename = null;
+        let frameCount = 100;
+        let tacticalMapImage = null;
+        let compositeWidth = 0;
+        let compositeHeight = 0;
+
+        const videoCanvas = document.getElementById('videoCanvas');
+        const videoCtx = videoCanvas.getContext('2d');
+        const tacticalCanvas = document.getElementById('tacticalCanvas');
+        const tacticalCtx = tacticalCanvas.getContext('2d');
+
+        async function init() {
+            await checkStatus();
+            await loadTacticalMap();
+            setupUpload();
+            setupTabs();
+            setupSliders();
+            setupTeamNames();
+            setupColorPicking();
+        }
+
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_URL}/api/status`);
+                const data = await response.json();
+                document.getElementById('statusDot').classList.toggle('ready', data.ready);
+                document.getElementById('statusText').textContent = data.ready ? (data.gpu ? `GPU: ${data.gpu_name}` : 'Ready') : 'Loading...';
+            } catch (e) {
+                document.getElementById('statusText').textContent = 'Offline';
+            }
+        }
+
+        async function loadTacticalMap() {
+            try {
+                const response = await fetch(`${API_URL}/api/tactical-map`);
+                const data = await response.json();
+                if (data.image) {
+                    tacticalMapImage = new Image();
+                    tacticalMapImage.onload = () => {
+                        tacticalCanvas.width = tacticalMapImage.width;
+                        tacticalCanvas.height = tacticalMapImage.height;
+                        tacticalCtx.drawImage(tacticalMapImage, 0, 0);
+                    };
+                    tacticalMapImage.src = 'data:image/jpeg;base64,' + data.image;
+                }
+            } catch (e) { console.error('Tactical map error:', e); }
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+        }
+
+        function setupSliders() {
+            const sliders = [
+                { id: 'playerConf', valId: 'playerConfVal', format: v => v.toFixed(2) },
+                { id: 'keypointConf', valId: 'keypointConfVal', format: v => v.toFixed(2) },
+                { id: 'keypointTol', valId: 'keypointTolVal', format: v => v.toString() },
+                { id: 'frameSlider', valId: 'frameValue', format: v => v.toString(), onChange: onFrameChange }
+            ];
+            sliders.forEach(s => {
+                const slider = document.getElementById(s.id);
+                const valSpan = document.getElementById(s.valId);
+                if (slider && valSpan) {
+                    slider.addEventListener('input', () => {
+                        valSpan.textContent = s.format(parseFloat(slider.value));
+                        if (s.onChange) s.onChange(slider.value);
+                    });
+                }
+            });
+        }
+
+        function setupTeamNames() {
+            const t1 = document.getElementById('team1Name');
+            const t2 = document.getElementById('team2Name');
+            const updateLabels = () => {
+                const n1 = t1.value || 'Team 1';
+                const n2 = t2.value || 'Team 2';
+                document.getElementById('t1pLabel').textContent = n1;
+                document.getElementById('t1gkLabel').textContent = n1;
+                document.getElementById('t2pLabel').textContent = n2;
+                document.getElementById('t2gkLabel').textContent = n2;
+                document.getElementById('cp1Label').textContent = n1 + ' P';
+                document.getElementById('cp2Label').textContent = n1 + ' GK';
+                document.getElementById('cp3Label').textContent = n2 + ' P';
+                document.getElementById('cp4Label').textContent = n2 + ' GK';
+            };
+            t1.addEventListener('input', updateLabels);
+            t2.addEventListener('input', updateLabels);
+        }
+
+        function setupUpload() {
+            const uploadZone = document.getElementById('uploadZone');
+            const videoInput = document.getElementById('videoInput');
+            uploadZone.addEventListener('click', () => videoInput.click());
+            uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.style.borderColor = 'var(--accent-primary)'; });
+            uploadZone.addEventListener('dragleave', () => { uploadZone.style.borderColor = ''; });
+            uploadZone.addEventListener('drop', (e) => { e.preventDefault(); uploadZone.style.borderColor = ''; if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]); });
+            videoInput.addEventListener('change', (e) => { if (e.target.files.length) handleFile(e.target.files[0]); });
+        }
+
+        async function handleFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            try {
+                document.getElementById('uploadZone').style.opacity = '0.5';
+                const response = await fetch(`${API_URL}/api/upload-video`, { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success) {
+                    currentFilename = data.filename;
+                    frameCount = data.frame_count;
+                    document.getElementById('videoName').textContent = data.filename;
+                    document.getElementById('videoDetails').textContent = `${data.frame_count} frames • ${data.fps.toFixed(1)} FPS • ${data.resolution}`;
+                    document.getElementById('videoInfo').classList.remove('hidden');
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('frameSlider').max = frameCount;
+                    document.getElementById('frameMax').textContent = frameCount;
+                    await loadFramePlayers(1);
+                }
+            } catch (e) { alert('Upload failed: ' + e.message); }
+            finally { document.getElementById('uploadZone').style.opacity = '1'; }
+        }
+
+        async function onFrameChange(value) { if (currentFilename) await loadFramePlayers(parseInt(value)); }
+
+        async function loadFramePlayers(frameNum) {
+            if (!currentFilename) return;
+            try {
+                const response = await fetch(`${API_URL}/api/get-frame-players`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename: currentFilename, frame_number: frameNum })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const composite = document.getElementById('playersComposite');
+                    if (data.composite) {
+                        composite.innerHTML = `<img src="data:image/jpeg;base64,${data.composite}" id="compositeImg">`;
+                        compositeWidth = data.composite_width;
+                        compositeHeight = data.composite_height;
+                    } else {
+                        composite.innerHTML = '<p style="color: var(--text-muted); font-size: 0.8rem;">No players detected</p>';
+                    }
+                    const preview = document.getElementById('framePreview');
+                    if (data.frame) preview.innerHTML = `<img src="data:image/jpeg;base64,${data.frame}">`;
+                }
+            } catch (e) { console.error('Load frame failed:', e); }
+        }
+
+        function setupColorPicking() {
+            document.getElementById('playersComposite').addEventListener('click', async (e) => {
+                const img = document.getElementById('compositeImg');
+                if (!img || !currentFilename) return;
+                const rect = img.getBoundingClientRect();
+                const scaleX = compositeWidth / rect.width;
+                const scaleY = compositeHeight / rect.height;
+                const x = Math.floor((e.clientX - rect.left) * scaleX);
+                const y = Math.floor((e.clientY - rect.top) * scaleY);
+                try {
+                    const frameNum = parseInt(document.getElementById('frameSlider').value);
+                    const response = await fetch(`${API_URL}/api/pick-color`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: currentFilename, frame_number: frameNum, x, y })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        const selected = document.querySelector('input[name="colorPick"]:checked').value;
+                        const colorMap = { 't1p': 'team1PColor', 't1gk': 'team1GKColor', 't2p': 'team2PColor', 't2gk': 'team2GKColor' };
+                        document.getElementById(colorMap[selected]).value = data.hex;
+                        updateTeams();
+                    }
+                } catch (e) { console.error('Color pick failed:', e); }
+            });
+        }
+
+        async function updateTeams() {
+            const data = {
+                team1_name: document.getElementById('team1Name').value,
+                team1_colors: [hexToRgb(document.getElementById('team1PColor').value), hexToRgb(document.getElementById('team1GKColor').value)],
+                team2_name: document.getElementById('team2Name').value,
+                team2_colors: [hexToRgb(document.getElementById('team2PColor').value), hexToRgb(document.getElementById('team2GKColor').value)]
+            };
+            try { await fetch(`${API_URL}/api/set-teams`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); }
+            catch (e) { console.error('Update teams failed:', e); }
+        }
+
+        async function updateHyperparams() {
+            const data = {
+                player_conf: parseFloat(document.getElementById('playerConf').value),
+                keypoint_conf: parseFloat(document.getElementById('keypointConf').value),
+                keypoint_tol: parseInt(document.getElementById('keypointTol').value)
+            };
+            try {
+                const response = await fetch(`${API_URL}/api/set-hyperparams`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                const result = await response.json();
+                if (result.success) showToast('Settings applied!');
+            } catch (e) { alert('Failed: ' + e.message); }
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [128, 128, 128];
+        }
+
+        function startProcessing() {
+            if (!currentFilename) return;
+            document.querySelector('.tab[data-tab="hyperparams"]').click();
+            isProcessing = true;
+            document.getElementById('startBtn').classList.add('hidden');
+            document.getElementById('stopBtn').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
+            document.getElementById('videoPlaceholder').classList.add('hidden');
+            document.getElementById('videoCanvas').classList.remove('hidden');
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            updateTeams();
+            ws = new WebSocket(`${WS_URL}/ws/video-stream`);
+            ws.onopen = () => { ws.send(JSON.stringify({ filename: currentFilename })); document.getElementById('loadingOverlay').classList.add('hidden'); };
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.error) { alert('Error: ' + data.error); stopProcessing(); return; }
+                if (data.complete) { stopProcessing(); showToast('Complete!'); return; }
+                renderFrame(data);
+                updateStats(data);
+                updateTacticalMap(data);
+            };
+            ws.onerror = () => stopProcessing();
+            ws.onclose = () => { if (isProcessing) stopProcessing(); };
+        }
+
+        function stopProcessing() {
+            isProcessing = false;
+            if (ws) { ws.close(); ws = null; }
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('stopBtn').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
+        }
+
+        function renderFrame(data) {
+            if (!data.frame) return;
+            const img = new Image();
+            img.onload = () => {
+                videoCanvas.width = img.width;
+                videoCanvas.height = img.height;
+                videoCtx.drawImage(img, 0, 0);
+                drawDetections(data);
+            };
+            img.src = 'data:image/jpeg;base64,' + data.frame;
+        }
+
+        function drawDetections(data) {
+            if (!document.getElementById('showPlayers').checked) return;
+            data.players.forEach(player => {
+                const [x1, y1, x2, y2] = player.bbox;
+                const color = `rgb(${player.team_color.join(',')})`;
+                videoCtx.strokeStyle = color;
+                videoCtx.lineWidth = 2;
+                videoCtx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+                videoCtx.fillStyle = color;
+                videoCtx.fillRect(x1, y1 - 16, player.team.length * 6 + 6, 16);
+                videoCtx.fillStyle = 'white';
+                videoCtx.font = '10px Inter, sans-serif';
+                videoCtx.fillText(player.team, x1 + 3, y1 - 4);
+            });
+            if (data.ball && document.getElementById('showBallTracks').checked) {
+                const [cx, cy] = data.ball.center;
+                videoCtx.beginPath();
+                videoCtx.arc(cx, cy, 5, 0, Math.PI * 2);
+                videoCtx.strokeStyle = '#ff0000';
+                videoCtx.lineWidth = 2;
+                videoCtx.stroke();
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('statFps').textContent = data.fps;
+            document.getElementById('fpsDisplay').textContent = `${data.fps} FPS`;
+            document.getElementById('statPlayers').textContent = data.players.length;
+            document.getElementById('statTime').textContent = data.processing_time_ms;
+            document.getElementById('statFrame').textContent = data.frame_number;
+            const fpsEl = document.getElementById('statFps');
+            fpsEl.style.color = data.fps > 25 ? 'var(--success)' : data.fps > 15 ? 'var(--warning)' : 'var(--danger)';
+            fpsEl.style.webkitTextFillColor = fpsEl.style.color;
+        }
+
+        function updateTacticalMap(data) {
+            if (!tacticalMapImage) return;
+            tacticalCtx.drawImage(tacticalMapImage, 0, 0);
+            data.tactical_positions.forEach(pos => {
+                const color = `rgb(${pos.team_color.join(',')})`;
+                tacticalCtx.beginPath();
+                tacticalCtx.arc(pos.x, pos.y, 6, 0, Math.PI * 2);
+                tacticalCtx.strokeStyle = color;
+                tacticalCtx.lineWidth = 2;
+                tacticalCtx.stroke();
+                tacticalCtx.beginPath();
+                tacticalCtx.arc(pos.x, pos.y, 4, 0, Math.PI * 2);
+                tacticalCtx.fillStyle = color;
+                tacticalCtx.fill();
+            });
+            if (data.ball_tactical) {
+                tacticalCtx.beginPath();
+                tacticalCtx.arc(data.ball_tactical.x, data.ball_tactical.y, 5, 0, Math.PI * 2);
+                tacticalCtx.fillStyle = '#ff0000';
+                tacticalCtx.fill();
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--success);color:white;padding:8px 16px;border-radius:8px;font-weight:500;z-index:1000;font-size:0.85rem;';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
