@@ -223,8 +223,8 @@ The models were trained on custom annotated datasets:
 
 ## 👥 Authors
 
-- Mohamed Ali Echchachoui
 - Mohamed Amine Youkaoui
+- Mohamed Ali Echchachoui
 - Adam Bakhadi
 - Abdelwahab Laksiri
 - Sahhar El Mehdi
