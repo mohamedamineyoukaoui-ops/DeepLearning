@@ -1,4 +1,4 @@
-# ⚽ Tactical Vision: Football Analytics with Deep Learning
+# Tactical Vision: Football Analytics with Deep Learning
 
 <div align="center">
 
@@ -6,41 +6,40 @@
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-red.svg)
 ![YOLOv8](https://img.shields.io/badge/YOLOv8-Ultralytics-green.svg)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.28+-FF4B4B.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 **Transform raw football video into tactical intelligence using Computer Vision and Deep Learning**
 
-[Demo](#-demo) • [Features](#-features) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Performance](#-performance)
+[Demo](#demo) • [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Architecture](#architecture) • [Performance](#performance)
 
 </div>
 
 ---
 
-## 📖 Overview
+## Overview
 
 **Tactical Vision** is a football analysis system that detects players, referees, and the ball from tactical camera footage, predicts team assignments based on jersey colors, and projects positions onto a 2D tactical map in real-time.
 
-### 🎯 Project Goals
+### Project Goals
 - Automate football match analysis
 - Provide real-time tactical visualization
 - Enable data-driven decision making for coaches and analysts
 
 ---
 
-## ✨ Features
+## Features
 
 | Feature | Description |
 |---------|-------------|
-| 🏃 **Player Detection** | Detect players, referees, and ball using YOLOv8 |
-| 👕 **Team Prediction** | Classify players by team using jersey color analysis (K-means + LAB color space) |
-| 🗺️ **Tactical Map** | Project player positions onto a 2D pitch representation via homography |
-| ⚽ **Ball Tracking** | Track ball movement across frames with position history |
-| 📍 **Field Keypoints** | Detect 28 field landmarks for accurate coordinate transformation |
-| 🚀 **GPU Accelerated** | FP16 inference with CUDA optimization for ~40 FPS processing |
+| **Player Detection** | Detect players, referees, and ball using YOLOv8 |
+| **Team Prediction** | Classify players by team using jersey color analysis (K-means + LAB color space) |
+| **Tactical Map** | Project player positions onto a 2D pitch representation via homography |
+| **Ball Tracking** | Track ball movement across frames with position history |
+| **Field Keypoints** | Detect 28 field landmarks for accurate coordinate transformation |
+| **GPU Accelerated** | FP16 inference with CUDA optimization for ~40 FPS processing |
 
 ---
 
-## 🎬 Demo
+## Demo
 
 ### Streamlit Web Application
 ![Application Workflow](workflow%20diagram.png)
@@ -52,20 +51,9 @@ The system provides side-by-side visualization:
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Input Video   │────▶│  YOLOv8 Models   │────▶│   Homography    │
-│  (Tactical Cam) │     │  • Players (L)   │     │  Transformation │
-└─────────────────┘     │  • Keypoints (M) │     └────────┬────────┘
-                        └──────────────────┘              │
-                                                          ▼
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Tactical Map   │◀────│ Team Prediction  │◀────│ Color Analysis  │
-│   Projection    │     │   (K-means+LAB)  │     │  (Jersey RGB)   │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-```
+![System Architecture](architecture_diagram.png)
 
 ### Models
 
@@ -76,7 +64,7 @@ The system provides side-by-side visualization:
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Python 3.10+
@@ -87,8 +75,8 @@ The system provides side-by-side visualization:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/Tactical-Vision-Football-Analytics.git
-cd Tactical-Vision-Football-Analytics
+git clone https://github.com/mohamedamineyoukaoui-ops/DeepLearning.git
+cd DeepLearning
 ```
 
 2. **Create conda environment**
@@ -105,18 +93,18 @@ pip install -r requirements.txt
 3. **Download model weights**
 
 Download the pre-trained weights and place them in the `models/` directory:
-- [Players Model (YOLOv8L) - 83MB](https://drive.google.com/your-link) → `models/Yolo8L Players/weights/best.pt`
-- [Keypoints Model (YOLOv8M) - 50MB](https://drive.google.com/your-link) → `models/Yolo8M Field Keypoints/weights/best.pt`
+- Players Model (YOLOv8L) - 83MB → `models/Yolo8L Players/weights/best.pt`
+- Keypoints Model (YOLOv8M) - 50MB → `models/Yolo8M Field Keypoints/weights/best.pt`
 
 4. **Download demo videos**
 
 Place demo videos in the `Streamlit web app/` directory:
-- [Demo Video 1](https://drive.google.com/your-link) → `demo_vid_1.mp4`
-- [Demo Video 2](https://drive.google.com/your-link) → `demo_vid_2.mp4`
+- Demo Video 1 → `demo_vid_1.mp4`
+- Demo Video 2 → `demo_vid_2.mp4`
 
 ---
 
-## 🚀 Usage
+## Usage
 
 ### Streamlit Web Application
 
@@ -145,7 +133,7 @@ jupyter notebook "Football Object Detection With Tactical Map.ipynb"
 
 ---
 
-## 📊 Performance
+## Performance
 
 | Metric | Value |
 |--------|-------|
@@ -161,7 +149,7 @@ jupyter notebook "Football Object Detection With Tactical Map.ipynb"
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Tactical-Vision/
@@ -189,7 +177,7 @@ Tactical-Vision/
 
 ---
 
-## 📚 Datasets
+## Datasets
 
 The models were trained on custom annotated datasets:
 
@@ -200,7 +188,7 @@ The models were trained on custom annotated datasets:
 
 ---
 
-## ⚠️ Known Limitations
+## Known Limitations
 
 | Limitation | Impact | Proposed Solution |
 |------------|--------|-------------------|
@@ -211,7 +199,7 @@ The models were trained on custom annotated datasets:
 
 ---
 
-## 🔮 Future Work
+## Future Work
 
 - [ ] Heat map generation
 - [ ] Player distance tracking
@@ -221,7 +209,7 @@ The models were trained on custom annotated datasets:
 
 ---
 
-## 👥 Authors
+## Authors
 
 - Mohamed Amine Youkaoui
 - Mohamed Ali Echchachoui
@@ -232,23 +220,9 @@ The models were trained on custom annotated datasets:
 
 ---
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics)
 - [Streamlit](https://streamlit.io/)
 - [OpenCV](https://opencv.org/)
 - [scikit-image](https://scikit-image.org/)
-
----
-
-<div align="center">
-
-**⭐ Star this repo if you find it useful!**
-
-</div>
